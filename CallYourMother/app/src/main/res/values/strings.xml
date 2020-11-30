@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Call Your Mother</string>
+    <string name="notifications">Notifications</string>
+    <string name="contacts">Contacts</string>
 </resources>

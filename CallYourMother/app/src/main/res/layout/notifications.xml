@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="#5400FFE1"
+    android:backgroundTint="#1B4CFF00"
+    android:backgroundTintMode="screen"
+    >
+
+    <TextView
+        android:id="@+id/callLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="10dp"
+        android:text="Call "
+        android:textAllCaps="true"
+        android:textSize="18sp"
+        android:textFontWeight="600"
+        android:textColor="#FF0000"
+        />
+
+    <TextView
+        android:id="@+id/callName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/callLabel"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="1dp"
+        android:textAllCaps="true"
+        android:textSize="18sp"
+        android:textColor="#FF0000"
+        />
+
+    <TextView
+        android:id="@+id/lastcalledonLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/notificationLabel"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="50dp"
+        android:text="Last Called on: "
+        android:textColor="@color/colorBlack"
+        />
+
+    <TextView
+        android:id="@+id/lastcalledon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/notification"
+        android:layout_toRightOf="@id/lastcalledonLabel"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="1dp"
+        android:textColor="#FF0000"
+        />
+
+    <TextView
+        android:id="@+id/numLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/callLabel"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="50dp"
+        android:text="Phone number: "
+        android:textColor="#000000"
+        />
+
+    <TextView
+        android:id="@+id/num"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/callLabel"
+        android:layout_toRightOf="@id/numLabel"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="1dp"
+        android:textColor="#FF0000"
+        />
+
+    <TextView
+        android:id="@+id/notificationLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/numLabel"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="50dp"
+        android:text="Notification Group: "
+        android:textColor="#000000"
+        />
+
+    <TextView
+        android:id="@+id/notification"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/num"
+        android:layout_toRightOf="@id/notificationLabel"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="1dp"
+        android:textColor="#FF0000"
+        />
+
+
+
+
+</RelativeLayout>

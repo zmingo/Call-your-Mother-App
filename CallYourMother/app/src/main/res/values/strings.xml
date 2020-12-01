@@ -2,4 +2,9 @@
     <string name="app_name">Call Your Mother</string>
     <string name="notifications">Notifications</string>
     <string name="contacts">Contacts</string>
+    <string-array name="notification_selector">
+        <item name="selection1">Group 1</item>
+        <item name="selection2">Group 2</item>
+        <item name="selection3">Group 3</item>
+    </string-array>
 </resources>

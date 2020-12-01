@@ -2,14 +2,29 @@ package com.example.callyourmother
 
 import android.app.ListActivity
 import android.os.Bundle
-import android.widget.ListView
+
+
 
 class ContactsActivity: ListActivity() {
+    lateinit var mAdapter: ContactsAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.contactslist)
-        var adapters = ContactsAdapter(applicationContext)
+        mAdapter = ContactsAdapter(applicationContext,  ) //input the contacts array that was past through from intent into second parameter
 
-        listAdapter = adapters
+
+
+
+        listAdapter = mAdapter
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+
+        //return the adapter's array on result intent
+    }
+
+
+
 }

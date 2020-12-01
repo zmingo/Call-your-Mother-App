@@ -20,7 +20,7 @@
             android:label="Contacts"
             />
         <activity android:name=".NotificationActivity"
-            android:label="Contacts"
+            android:label="Notifications"
             />
     </application>
 

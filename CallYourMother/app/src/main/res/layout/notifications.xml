@@ -4,6 +4,7 @@
     android:background="#5400FFE1"
     android:backgroundTint="#1B4CFF00"
     android:backgroundTintMode="screen"
+    android:theme="@style/AppTheme"
     >
 
     <TextView

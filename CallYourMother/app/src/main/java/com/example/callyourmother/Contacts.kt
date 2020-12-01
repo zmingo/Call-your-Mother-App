@@ -1,6 +1,5 @@
 package com.example.callyourmother
 
-import android.app.Notification
 import android.graphics.Bitmap
 import java.util.*
 
@@ -11,7 +10,7 @@ class Contacts {
     var notification: String? = null
     var lastCallDate: Date? = null
 
-    constructor(image: Bitmap?, phone: String?, name:String?, notification: String?, lastCallDate: Date?) {
+    constructor(image: Bitmap?, phone: String?, name:String?, notification: String?, lastCallDate: Date) {
         this.image = image
         this.phone = phone
         this.name = name

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#5400FFE1"
+    android:backgroundTint="#1B4CFF00"
+    android:backgroundTintMode="screen"
+    android:theme="@style/AppTheme"
+    android:layout_centerHorizontal="true"
+    >
+
+    <TextView
+        android:id="@+id/notification1Label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="50dp"
+        android:text="Notification Group 1: "
+        android:textSize="18sp"
+        android:textFontWeight="600"
+        android:textColor="@color/colorBlack"
+        />
+
+
+    <EditText
+        android:id="@+id/notification1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/notification1Label"
+        android:layout_marginTop="17dp"
+        android:layout_marginLeft="10dp"
+        android:textSize="20sp"
+        android:textFontWeight="600"
+        android:inputType="number"
+        android:textColor="@color/colorBlack"
+        />
+
+    <TextView
+        android:id="@+id/notification2Label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="50dp"
+        android:layout_below="@id/notification1Label"
+        android:text="Notification Group 2: "
+        android:textSize="18sp"
+        android:textFontWeight="600"
+        android:textColor="@color/colorBlack"
+        />
+
+
+    <EditText
+        android:id="@+id/notification2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/notification1Label"
+        android:layout_below="@id/notification1"
+        android:inputType="number"
+        android:layout_marginLeft="10dp"
+        android:textSize="18sp"
+        android:textFontWeight="600"
+        android:textColor="@color/colorBlack"
+        />
+
+    <TextView
+        android:id="@+id/notification3Label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="50dp"
+        android:layout_below="@id/notification2Label"
+        android:text="Notification Group 3: "
+        android:textSize="18sp"
+        android:textFontWeight="600"
+        android:textColor="@color/colorBlack"
+        />
+
+
+    <EditText
+        android:id="@+id/notification3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/notification2Label"
+        android:layout_below="@id/notification2"
+        android:inputType="number"
+        android:layout_marginLeft="10dp"
+        android:textSize="18sp"
+        android:textFontWeight="600"
+        android:textColor="@color/colorBlack"
+        />
+
+    <TextView
+        android:id="@+id/info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/notification3Label"
+        android:layout_marginTop="20dp"
+        android:textSize="12dp"
+        android:textFontWeight="500"
+        android:text="Enter a whole number of days for each notification group"
+        />
+
+    <Button
+        android:id="@+id/saveButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/info"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="15dp"
+        android:text="Save"
+        />
+
+</RelativeLayout>

@@ -1,16 +1,20 @@
 package com.example.callyourmother
 
 import android.content.Context
+import android.content.SharedPreferences
+import android.preference.PreferenceManager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import com.google.gson.Gson
 
 
 class ContactsAdapter(Context: Context, Array: ArrayList<Contacts>) : BaseAdapter() {
 
     private var array = Array
+    private var context = Context
 
     override fun getCount(): Int {
         return array.size
@@ -52,6 +56,7 @@ class ContactsAdapter(Context: Context, Array: ArrayList<Contacts>) : BaseAdapte
             override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                 var selected = parent.adapter.getItem(position) as String
                 contacts.notification = selected
+                saveArray(array)
                 notifyDataSetChanged()
             }
 
@@ -61,6 +66,15 @@ class ContactsAdapter(Context: Context, Array: ArrayList<Contacts>) : BaseAdapte
         }
 
         return view
+    }
+
+    private fun saveArray(contactList: ArrayList<Contacts>) {
+        val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+        var editor = prefs.edit()
+        val gson = Gson()
+        val jsonText = gson.toJson(contactList)
+        editor.putString("key", jsonText)
+        editor.commit()
     }
 
     fun add(x: Contacts) {

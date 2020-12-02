@@ -7,9 +7,9 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
 
-class NotificationAdapter(Context: Context) : BaseAdapter()  {
+class NotificationAdapter(Context: Context, Array: ArrayList<Contacts>) : BaseAdapter()  {
 
-    private val array = ArrayList<Contacts>()
+    private val array = Array
 
     override fun getCount(): Int {
         return array.size

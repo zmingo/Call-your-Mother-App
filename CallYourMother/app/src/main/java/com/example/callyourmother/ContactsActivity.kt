@@ -2,7 +2,7 @@ package com.example.callyourmother
 
 import android.app.ListActivity
 import android.os.Bundle
-
+import kotlin.collections.ArrayList
 
 
 class ContactsActivity: ListActivity() {
@@ -10,9 +10,9 @@ class ContactsActivity: ListActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.contactslist)
-        mAdapter = ContactsAdapter(applicationContext,  ) //input the contacts array that was past through from intent into second parameter
-
-
+        mAdapter = ContactsAdapter(applicationContext,
+            intent.getSerializableExtra("contacts array") as ArrayList<Contacts>
+        ) //input the contacts array that was past through from intent into second parameter
 
 
         listAdapter = mAdapter
@@ -22,7 +22,8 @@ class ContactsActivity: ListActivity() {
         super.onDestroy()
 
 
-        //return the adapter's array on result intent
+        //TODO
+        // return the adapter's array on result intent
     }
 
 

@@ -7,7 +7,9 @@ class NotificationActivity: ListActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.notificationlist)
-        var adapters = NotificationAdapter(applicationContext)
+        var adapters = NotificationAdapter(applicationContext,
+            intent.getSerializableExtra("notifications array") as ArrayList<Contacts>
+        )
         listAdapter = adapters
     }
 }

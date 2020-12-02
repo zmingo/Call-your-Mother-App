@@ -17,11 +17,15 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+
+
         var contacts_button = findViewById<Button>(R.id.contacts_button)
         contacts_button.setOnClickListener {
             var intent = Intent(this, ContactsActivity::class.java)
-            //put extra of array of contacts to be sent to contacts activity to be displayed
-
+            //TODO
+            // put extra of array of contacts to be sent to contacts activity to be displayed
+            intent.putExtra("contacts array", )
 
             startActivityForResult(intent,0)
         }
@@ -29,8 +33,9 @@ class MainActivity : AppCompatActivity() {
         var notification_button = findViewById<Button>(R.id.notifications_button)
         notification_button.setOnClickListener {
             var intent = Intent(this, NotificationActivity::class.java)
-            //put extra of array of notifications to be sent to notifications activity to be displayed
-
+            //TODO
+            // put extra of array of notifications to be sent to notifications activity to be displayed
+            intent.putExtra("notification array", )
 
             startActivity(intent)
         }
@@ -47,7 +52,8 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             1 -> {
-                //Should delete all past notifications in stored notifications array
+                //TODO
+                // Delete all past notifications in stored notifications array
 
                 return true
             }
@@ -59,7 +65,8 @@ class MainActivity : AppCompatActivity() {
                     null
                 )  //Custom Dialog for entering number of days per Notification group
 
-                //EditText fields where they can enter num of days. Fill the text with existing days if there are previously saved settings, if not make the default 1, 5, 10 days
+                //TODO
+                // EditText fields where they can enter num of days. Fill the text with existing days if there are previously saved settings, if not make the default 1, 5, 10 days
                 var notif1 = findViewById<EditText>(R.id.notification1)
                 var notif2 = findViewById<EditText>(R.id.notification2)
                 var notif3 = findViewById<EditText>(R.id.notification3)
@@ -80,7 +87,8 @@ class MainActivity : AppCompatActivity() {
 
                 var saveButton = findViewById<Button>(R.id.saveButton)
                 saveButton.setOnClickListener {
-                    //should edit notification groups and backend monitoring
+                    //TODO
+                    // Edit notification groups and backend monitoring
 
 
                 }
@@ -89,5 +97,12 @@ class MainActivity : AppCompatActivity() {
             }
             else -> return super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        //TODO get result from contacts activity and update contacts array with notification group changes (if any)
+
+
+        super.onActivityResult(requestCode, resultCode, data)
     }
 }

@@ -11,7 +11,6 @@ import android.widget.*
 class ContactsAdapter(Context: Context, Array: ArrayList<Contacts>) : BaseAdapter() {
 
     private var array = Array
-    private var context = Context
 
     override fun getCount(): Int {
         return array.size

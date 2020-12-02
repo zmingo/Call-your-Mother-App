@@ -1,31 +1,48 @@
 package com.example.callyourmother
 
+import android.Manifest
 import android.content.Intent
+import android.content.SharedPreferences
+import android.database.Cursor
+import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
+import android.preference.PreferenceManager
+import android.provider.CallLog
+import android.provider.ContactsContract
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.io.File
+import java.lang.Long
+import java.lang.reflect.Type
+import java.util.*
+import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-
+        addAllContacts()
+        requestPermissions(arrayOf(Manifest.permission.READ_CALL_LOG), 1)
+        requestPermissions(arrayOf(Manifest.permission.READ_CONTACTS), 1)
 
         var contacts_button = findViewById<Button>(R.id.contacts_button)
         contacts_button.setOnClickListener {
+            val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+            val json: String = prefs.getString("key", null) as String
             var intent = Intent(this, ContactsActivity::class.java)
-            //TODO
-            // put extra of array of contacts to be sent to contacts activity to be displayed
-            intent.putExtra("contacts array", )
+            intent.putExtra("contacts array", json)
 
             startActivityForResult(intent,0)
         }
@@ -33,12 +50,121 @@ class MainActivity : AppCompatActivity() {
         var notification_button = findViewById<Button>(R.id.notifications_button)
         notification_button.setOnClickListener {
             var intent = Intent(this, NotificationActivity::class.java)
-            //TODO
-            // put extra of array of notifications to be sent to notifications activity to be displayed
-            intent.putExtra("notification array", )
+            //intent.putExtra("notification array", )
 
             startActivity(intent)
         }
+    }
+
+    private fun addAllContacts(){
+        // PULL THE CURRENT CONTACT LIST FROM SHARED PREFERENCES
+        val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val gson = Gson()
+        val json: String = prefs.getString("key", null) as String
+        val type: Type = object : TypeToken<java.util.ArrayList<Contacts>?>() {}.type
+        val useList: ArrayList<Contacts> = gson.fromJson(json, type)
+        val contactList: ArrayList<Contacts> = useList
+
+        // CREATE CURSOR TO MOVE THROUGH CONTACTS
+        var cursor: Cursor = applicationContext.contentResolver.query(
+            ContactsContract.Contacts.CONTENT_URI,null,
+            null, null) as Cursor
+
+        // CHECK IF THERE ARE NO CONTACTS ON PHONE
+        if (cursor.count == 0) {
+            Toast.makeText(this, "No contacts", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        // MOVE THROUGH ALL CONTACTS
+        while (cursor.moveToNext()) {
+            // GET IMAGE FROM CONTACT
+            val fileName = ContactsContract.Contacts.PHOTO_FILE_ID
+            val file = File(fileName)
+            val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+
+            // GET PHONE NUMBER FROM CONTACT
+            val id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
+            var phone = ""
+            if (cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
+                val phoneCursor: Cursor = applicationContext.contentResolver.query(
+                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                    null,
+                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
+                    arrayOf<String>(id),
+                    null
+                )!!
+                if (phoneCursor != null && phoneCursor.moveToFirst()) {
+                    phone =
+                        phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                    phoneCursor.close()
+                }
+            }
+
+            // GET NAME FROM CONTACT
+            val name =
+                cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
+
+            // GET DATE FROM CONTACT (HELPER FUNCTION)
+            val date: Date = getDate(phone)
+
+            // CREATE CONTACT WITH COLLECTED INFORMATION
+            var contact = Contacts(bitmap, phone, name, "Group 2", date)
+
+            // CHECK IF CONTACT ALREADY EXISTS IN ARRAY LIST, ADD IF IT DOESN'T
+            var duplicate = false
+            for (check in contactList) {
+                if (check.phone == contact.phone) {
+                    duplicate = true
+                }
+            }
+            if (!duplicate) {
+                contactList.add(contact)
+            }
+        }
+        // SAVE THE ARRAY TO SHARED PREFERENCES (HELPER FUNCTION)
+        saveArray(contactList)
+    }
+
+    // TAKES IN A NUMBER AND RETURNS THE MOST RECENT DATE THAT NUMBER WAS CALLED BY THE USER
+    private fun getDate(phone: String): Date {
+        // CREATE A CURSOR OF CALL LOGS
+        val allCalls: Uri = Uri.parse("content://call_log/calls")
+        val cursor: Cursor = applicationContext.contentResolver.query(allCalls, null,
+            null, null, null) as Cursor
+
+        // REMOVE PHONE NUMBER FORMATTING FROM GIVEN NUMBER
+        var callDate = ""
+        val re = Regex("-| |\\(|\\)")
+        var newPhone = re.replace(phone, "")
+
+        // CHECKER TO MAKE SURE MOST RECENT LOG ISN'T REPLACED BY OLDER LOG
+        var notFound = true
+        // ITERATE THROUGH LOGS UNTIL MATCH IS FOUND
+        while (cursor.moveToNext() && notFound) {
+            // MATCH IS FOUND IF THE PHONE NUMBER GIVEN IS THE PHONE NUMBER OF THE CURRENT LOG
+            if (newPhone == cursor.getString(cursor.getColumnIndex(CallLog.Calls.NUMBER))) {
+                // GET THE DATE
+                val date: Int = cursor.getColumnIndex(CallLog.Calls.DATE)
+                callDate = cursor.getString(date)
+                notFound = false
+            }
+        }
+        // IF LOG IS NOT FOUND, RETURN FILLER DATE
+        if (notFound) {
+            return Date(1, 1, 1900)
+        }
+        return Date(Long.valueOf(callDate))
+    }
+
+    // SAVE THE ARRAY TO SHARED PREFERENCES USING JSON
+    private fun saveArray(contactList: ArrayList<Contacts>) {
+        val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        var editor = prefs.edit()
+        val gson = Gson()
+        val jsonText = gson.toJson(contactList)
+        editor.putString("key", jsonText)
+        editor.commit()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -100,9 +226,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        //TODO get result from contacts activity and update contacts array with notification group changes (if any)
-
-
         super.onActivityResult(requestCode, resultCode, data)
     }
 }

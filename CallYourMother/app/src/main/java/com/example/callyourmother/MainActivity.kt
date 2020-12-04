@@ -248,22 +248,22 @@ class MainActivity : AppCompatActivity() {
 
                 //TODO
                 // EditText fields where they can enter num of days. Fill the text with existing days if there are previously saved settings, if not make the default 1, 5, 10 days
-                var notif1 = findViewById<EditText>(R.id.notification1)
-                var notif2 = findViewById<EditText>(R.id.notification2)
-                var notif3 = findViewById<EditText>(R.id.notification3)
+                var notif1 = ndialog.findViewById<EditText>(R.id.notification1)
+                var notif2 = ndialog.findViewById<EditText>(R.id.notification2)
+                var notif3 = ndialog.findViewById<EditText>(R.id.notification3)
 
                 notif1.hint = mPrefs.getInt("Notif1", 1).toString()
                 notif2.hint = mPrefs.getInt("Notif2", 5).toString()
                 notif3.hint = mPrefs.getInt("Notif3", 10).toString()
 
-                if ("" == notif1.text.toString()) {
-                        notif1.text = mPrefs.getInt("Notif1", 1).toString() as Editable
+                if (notif1.text.isEmpty()) {
+                    notif1.setText(mPrefs.getInt("Notif1", 1).toString())
                 }
-                if ("" == notif2.text.toString()) {
-                       notif2.text = mPrefs.getInt("Notif2",5).toString() as Editable
+                if (notif2.text.isEmpty()) {
+                    notif2.setText(mPrefs.getInt("Notif2", 5).toString())
                 }
-                if ("" == notif3.text.toString()) {
-                        notif3.text = mPrefs.getInt("notif3", 10).toString() as Editable
+                if (notif3.text.isEmpty()) {
+                    notif3.setText(mPrefs.getInt("notif3", 10).toString())
                 }
 
 
@@ -281,17 +281,29 @@ class MainActivity : AppCompatActivity() {
                 var dialog = dialogBuilder.create() //Create and display the dialog to the user
                 dialog.show()
 
-                var saveButton = findViewById<Button>(R.id.saveButton)
+                var saveButton = ndialog.findViewById<Button>(R.id.saveButton)
                 saveButton.setOnClickListener {
                     // Edit notification groups and backend monitoring
 
-                    val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+                    val prefs: SharedPreferences =
+                        PreferenceManager.getDefaultSharedPreferences(this)
                     var editor = prefs.edit()
 
-                    editor.putInt("Notif1", notif1.text.toString().toInt())
-                    editor.putInt("Notif2", notif2.text.toString().toInt())
-                    editor.putInt("Notif3", notif3.text.toString().toInt())
+                    var v1 = if (notif1.text.isEmpty()) {
+                        mPrefs.getInt("Notif1", 1).toString()
+                    } else notif1.text.toString()
+                    var v2 = if (notif2.text.isEmpty()) {
+                        mPrefs.getInt("Notif2", 5).toString()
+                    } else notif2.text.toString()
+                    var v3 = if (notif3.text.isEmpty()) {
+                        mPrefs.getInt("Notif3", 10).toString()
+                    } else notif3.text.toString()
+
+                    editor.putInt("Notif1", v1.toInt())
+                    editor.putInt("Notif2", v2.toInt())
+                    editor.putInt("Notif3", v3.toInt())
                     editor.commit()
+                    dialog.dismiss()
                 }
 
                 return true

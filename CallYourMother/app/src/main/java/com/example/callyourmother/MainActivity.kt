@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Notification
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -102,7 +103,6 @@ class MainActivity : AppCompatActivity() {
 
         // Starts the service for running in background
         val intent : Intent = Intent()
-        val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val json: String = prefs.getString("key", null) as String
         intent.putExtra("contacts array", json)
         intent.putExtra("Group 1", mPrefs.getInt("Notif1", 1))

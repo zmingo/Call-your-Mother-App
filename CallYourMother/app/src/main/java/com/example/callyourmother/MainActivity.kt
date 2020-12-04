@@ -70,11 +70,12 @@ class MainActivity : AppCompatActivity() {
         mPrefs = PreferenceManager.getDefaultSharedPreferences(this)
 
         // creating notification array
+
         mNotification = mContacts.filter { contact: Contacts ->
             when (contact.notification) {
-                "Group 1" -> (((LocalDate.now() as Date) - contact.lastCallDate).Int() < mPrefs.getInt("Notif1", 1))
-                "Group 2" -> (((LocalDate.now() as Date) - contact.lastCallDate).Int() < mPrefs.getInt("Notif2", 5))
-                "Group 3" -> (((LocalDate.now() as Date) - contact.lastCallDate).Int() < mPrefs.getInt("Notif3", 10))
+                "Group 1" -> (diffDates(contact.lastCallDate!!) < mPrefs.getInt("Notif1", 1))
+                "Group 2" -> (diffDates(contact.lastCallDate!!) < mPrefs.getInt("Notif2", 5))
+                "Group 3" -> (diffDates(contact.lastCallDate!!) < mPrefs.getInt("Notif3", 10))
                 else -> true
             }
         } as ArrayList<Contacts>
@@ -285,6 +286,11 @@ class MainActivity : AppCompatActivity() {
             }
             else -> return super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun diffDates (date : Date) : Int {
+        val cal : Date = Calendar.getInstance().time
+        return (cal.year - date.year) * 365 + (cal.month - date.month) * 30 + (cal.day - date.day)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

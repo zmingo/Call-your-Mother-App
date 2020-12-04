@@ -43,9 +43,21 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        addAllContacts()
-        requestPermissions(arrayOf(Manifest.permission.READ_CALL_LOG), 1)
-        requestPermissions(arrayOf(Manifest.permission.READ_CONTACTS), 1)
+        val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        if (prefs.getString("key", null) == null) {
+            val contactArray: ArrayList<Contacts> = ArrayList<Contacts>()
+            saveArray(contactArray)
+        }
+
+        requestPermissions(arrayOf(Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_CONTACTS), 1)
+
+        if (checkSelfPermission(Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED
+            && checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+            addAllContacts()
+        }
+        else {
+            Toast.makeText(this, "Permissions needed. Restart app and give permissions", Toast.LENGTH_LONG).show()
+        }
 
 
 
@@ -101,14 +113,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addAllContacts(){
-        // PULL THE CURRENT CONTACT LIST FROM SHARED PREFERENCES
-        val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val gson = Gson()
-        val json: String = prefs.getString("key", null) as String
-        val type: Type = object : TypeToken<java.util.ArrayList<Contacts>?>() {}.type
-        val useList: ArrayList<Contacts> = gson.fromJson(json, type)
-        val contactList: ArrayList<Contacts> = useList
-
         // CREATE CURSOR TO MOVE THROUGH CONTACTS
         var cursor: Cursor = applicationContext.contentResolver.query(
             ContactsContract.Contacts.CONTENT_URI,null,
@@ -119,6 +123,14 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "No contacts", Toast.LENGTH_LONG).show()
             return
         }
+        
+        // PULL THE CURRENT CONTACT LIST FROM SHARED PREFERENCES
+        val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val gson = Gson()
+        val json: String = prefs.getString("key", null) as String
+        val type: Type = object : TypeToken<java.util.ArrayList<Contacts>?>() {}.type
+        val useList: ArrayList<Contacts> = gson.fromJson(json, type)
+        val contactList: ArrayList<Contacts> = useList
 
         // MOVE THROUGH ALL CONTACTS
         while (cursor.moveToNext()) {

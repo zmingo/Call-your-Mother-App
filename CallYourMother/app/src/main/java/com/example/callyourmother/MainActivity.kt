@@ -1,6 +1,7 @@
 package com.example.callyourmother
 
 import android.Manifest
+import android.app.Notification
 import android.content.Intent
 import android.content.SharedPreferences
 import android.database.Cursor
@@ -8,9 +9,13 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.os.PersistableBundle
+
 import android.preference.PreferenceManager
 import android.provider.CallLog
 import android.provider.ContactsContract
+import android.text.Editable
+
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
@@ -25,8 +30,13 @@ import com.google.gson.reflect.TypeToken
 import java.io.File
 import java.lang.Long
 import java.lang.reflect.Type
+import java.time.LocalDate
 import java.util.*
 import kotlin.collections.ArrayList
+
+var mContacts = ArrayList<Contacts>()
+var mNotification = ArrayList<Contacts>()
+lateinit var mPrefs : SharedPreferences
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,23 +47,56 @@ class MainActivity : AppCompatActivity() {
         requestPermissions(arrayOf(Manifest.permission.READ_CALL_LOG), 1)
         requestPermissions(arrayOf(Manifest.permission.READ_CONTACTS), 1)
 
+
+
         var contacts_button = findViewById<Button>(R.id.contacts_button)
+
         contacts_button.setOnClickListener {
             val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
             val json: String = prefs.getString("key", null) as String
             var intent = Intent(this, ContactsActivity::class.java)
-            intent.putExtra("contacts array", json)
 
+            intent.putExtra("contacts array", json)
             startActivityForResult(intent,0)
         }
+
+        // Assigning the mContacts for local use
+        val prefsForContact: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val gson = Gson()
+        val jsonForContact: String = prefsForContact.getString("key", null) as String
+        val type: Type = object : TypeToken<java.util.ArrayList<Contacts>?>() {}.type
+        val useList: ArrayList<Contacts> = gson.fromJson(jsonForContact, type)
+        mContacts = useList
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(this)
+
+        // creating notification array
+        mNotification = mContacts.filter { contact: Contacts ->
+            when (contact.notification) {
+                "Group 1" -> (((LocalDate.now() as Date) - contact.lastCallDate).Int() < mPrefs.getInt("Notif1", 1))
+                "Group 2" -> (((LocalDate.now() as Date) - contact.lastCallDate).Int() < mPrefs.getInt("Notif2", 5))
+                "Group 3" -> (((LocalDate.now() as Date) - contact.lastCallDate).Int() < mPrefs.getInt("Notif3", 10))
+                else -> true
+            }
+        } as ArrayList<Contacts>
+
 
         var notification_button = findViewById<Button>(R.id.notifications_button)
         notification_button.setOnClickListener {
             var intent = Intent(this, NotificationActivity::class.java)
-            //intent.putExtra("notification array", )
-
-            startActivity(intent)
+            intent.putExtra("notifications array", mNotification)
+            startActivityForResult(intent, 0)
         }
+
+        // Starts the service for running in background
+        val intent : Intent = Intent()
+        val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val json: String = prefs.getString("key", null) as String
+        intent.putExtra("contacts array", json)
+        intent.putExtra("Group 1", mPrefs.getInt("Notif1", 1))
+        intent.putExtra("Group 2", mPrefs.getInt("Notif2", 5))
+        intent.putExtra("Group 3", mPrefs.getInt("Notif3", 10))
+        intent.setClass(applicationContext, RunInBackground::class.java)
+        startService(intent)
     }
 
     private fun addAllContacts(){
@@ -178,9 +221,8 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             1 -> {
-                //TODO
-                // Delete all past notifications in stored notifications array
-
+                //Clearing notifications
+                mNotification.clear()
                 return true
             }
 
@@ -196,6 +238,21 @@ class MainActivity : AppCompatActivity() {
                 var notif1 = findViewById<EditText>(R.id.notification1)
                 var notif2 = findViewById<EditText>(R.id.notification2)
                 var notif3 = findViewById<EditText>(R.id.notification3)
+
+                notif1.hint = mPrefs.getInt("Notif1", 1).toString()
+                notif2.hint = mPrefs.getInt("Notif2", 5).toString()
+                notif3.hint = mPrefs.getInt("Notif3", 10).toString()
+
+                if ("" == notif1.text.toString()) {
+                        notif1.text = mPrefs.getInt("Notif1", 1).toString() as Editable
+                }
+                if ("" == notif2.text.toString()) {
+                       notif2.text = mPrefs.getInt("Notif2",5).toString() as Editable
+                }
+                if ("" == notif3.text.toString()) {
+                        notif3.text = mPrefs.getInt("notif3", 10).toString() as Editable
+                }
+
 
                 dialogBuilder.setView(ndialog)
 
@@ -213,10 +270,15 @@ class MainActivity : AppCompatActivity() {
 
                 var saveButton = findViewById<Button>(R.id.saveButton)
                 saveButton.setOnClickListener {
-                    //TODO
                     // Edit notification groups and backend monitoring
 
+                    val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+                    var editor = prefs.edit()
 
+                    editor.putInt("Notif1", notif1.text.toString().toInt())
+                    editor.putInt("Notif2", notif2.text.toString().toInt())
+                    editor.putInt("Notif3", notif3.text.toString().toInt())
+                    editor.commit()
                 }
 
                 return true
@@ -228,4 +290,7 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
     }
+
+
+
 }

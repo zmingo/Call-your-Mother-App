@@ -30,6 +30,8 @@ import java.lang.Long
 import java.lang.reflect.Type
 import java.util.*
 import kotlin.collections.ArrayList
+import android.graphics.ImageDecoder.createSource
+import android.graphics.ImageDecoder.decodeBitmap
 
 var mContacts = ArrayList<Contacts>()
 var mNotification = ArrayList<Contacts>()

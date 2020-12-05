@@ -230,7 +230,7 @@ class MainActivity : AppCompatActivity() {
         when (item.itemId) {
             1 -> {
                 //Clearing notifications
-                mNotification.clear()
+                mPrefs.edit().putBoolean("cleared", true).commit()
                 return true
             }
 
@@ -249,13 +249,13 @@ class MainActivity : AppCompatActivity() {
                 notif2.hint = mPrefs.getInt("Notif2", 5).toString()
                 notif3.hint = mPrefs.getInt("Notif3", 10).toString()
 
-                if (notif1.text.isEmpty()) {
+                if (notif1.text.isEmpty() || notif1.text.toString().toInt() == 0) {
                     notif1.setText(mPrefs.getInt("Notif1", 1).toString())
                 }
-                if (notif2.text.isEmpty()) {
+                if (notif2.text.isEmpty() || notif2.text.toString().toInt() == 0) {
                     notif2.setText(mPrefs.getInt("Notif2", 5).toString())
                 }
-                if (notif3.text.isEmpty()) {
+                if (notif3.text.isEmpty() || notif3.text.toString().toInt() == 0) {
                     notif3.setText(mPrefs.getInt("notif3", 10).toString())
                 }
 
@@ -282,13 +282,13 @@ class MainActivity : AppCompatActivity() {
                         PreferenceManager.getDefaultSharedPreferences(this)
                     var editor = prefs.edit()
 
-                    var v1 = if (notif1.text.isEmpty()) {
+                    var v1 = if (notif1.text.isEmpty() || notif1.text.toString().toInt() == 0) {
                         mPrefs.getInt("Notif1", 1).toString()
                     } else notif1.text.toString()
-                    var v2 = if (notif2.text.isEmpty()) {
+                    var v2 = if (notif2.text.isEmpty() || notif2.text.toString().toInt() == 0) {
                         mPrefs.getInt("Notif2", 5).toString()
                     } else notif2.text.toString()
-                    var v3 = if (notif3.text.isEmpty()) {
+                    var v3 = if (notif3.text.isEmpty() || notif3.text.toString().toInt() == 0) {
                         mPrefs.getInt("Notif3", 10).toString()
                     } else notif3.text.toString()
 
@@ -318,6 +318,7 @@ class MainActivity : AppCompatActivity() {
         stopService(Intent(applicationContext, RunInBackground::class.java))
         val broadcastIntent = Intent().setAction("restartservice").setClass(this, Restarter::class.java)
         sendBroadcast(broadcastIntent)
+        mPrefs.edit().putBoolean("cleared", false).commit()
         super.onDestroy()
     }
 

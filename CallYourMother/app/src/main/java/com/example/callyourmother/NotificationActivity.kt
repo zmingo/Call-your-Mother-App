@@ -3,6 +3,7 @@ package com.example.callyourmother
 import android.app.ListActivity
 import android.os.Bundle
 import android.preference.PreferenceManager
+import androidx.core.app.ActivityCompat
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.lang.reflect.Type
@@ -25,12 +26,20 @@ class NotificationActivity: ListActivity() {
 
         var mNotification : ArrayList<Contacts> = contactList.filter { contact: Contacts ->
             when (contact.notification) {
-                "Group 1" -> true //(diffDates(contact.lastCallDate!!) < group1)
+                "Group 1" -> (diffDates(contact.lastCallDate!!) < group1)
                 "Group 2" -> (diffDates(contact.lastCallDate!!) < group2)
                 "Group 3" -> (diffDates(contact.lastCallDate!!) < group3)
                 else -> true
             }
         } as ArrayList<Contacts>
+
+        if (callingActivity == null) {
+            PreferenceManager.getDefaultSharedPreferences(applicationContext).edit().putBoolean("cleared", false).commit()
+        }
+
+        if (prefs.getBoolean("cleared", false)) {
+            mNotification.clear()
+        }
 
         var adapters = NotificationAdapter(applicationContext,   mNotification)
         listAdapter = adapters

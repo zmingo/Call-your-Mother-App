@@ -94,7 +94,6 @@ class RunInBackground : Service() {
         //start notifications
         if (mNotification.isNotEmpty()) {
             startNotification(mNotification)
-
         }
 
         //Stops once command is done
@@ -140,6 +139,7 @@ class RunInBackground : Service() {
             .setContentTitle("New Notification")
 
 
+        //PreferenceManager.getDefaultSharedPreferences(applicationContext).edit().putBoolean("cleared", false).commit()
         val notificationIntent = Intent(this, NotificationActivity::class.java)
         //notificationIntent.putExtra("notifications array", array)
         val pendingIntent = PendingIntent.getActivity(applicationContext,0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT )

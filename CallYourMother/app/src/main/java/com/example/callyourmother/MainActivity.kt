@@ -249,13 +249,13 @@ class MainActivity : AppCompatActivity() {
                 notif2.hint = mPrefs.getInt("Notif2", 5).toString()
                 notif3.hint = mPrefs.getInt("Notif3", 10).toString()
 
-                if (notif1.text.isEmpty()) {
+                if (notif1.text.isEmpty() || notif1.text.toString() == "0") {
                     notif1.setText(mPrefs.getInt("Notif1", 1).toString())
                 }
-                if (notif2.text.isEmpty()) {
+                if (notif2.text.isEmpty() || notif2.text.toString() == "0") {
                     notif2.setText(mPrefs.getInt("Notif2", 5).toString())
                 }
-                if (notif3.text.isEmpty()) {
+                if (notif3.text.isEmpty() || notif3.text.toString() == "0") {
                     notif3.setText(mPrefs.getInt("notif3", 10).toString())
                 }
 

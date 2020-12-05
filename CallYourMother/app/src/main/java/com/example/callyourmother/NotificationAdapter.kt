@@ -23,14 +23,14 @@ class NotificationAdapter(Context: Context, Array: ArrayList<Contacts>) : BaseAd
         return p0.toLong()
     }
 
-    override fun getView(p0: Int, p1: View, p2: ViewGroup?): View {
+    override fun getView(p0: Int, p1: View?, p2: ViewGroup?): View {
         var view = p1
         var contacts = getItem(p0)
         if (view == null) {
             view = inflate!!.inflate(R.layout.notifications, p2, false);
         }
 
-        var lastCalledOn = view.findViewById(R.id.lastcalledon) as TextView
+        var lastCalledOn = view?.findViewById(R.id.lastcalledon) as TextView
         var phone = view.findViewById(R.id.num) as TextView
         var name = view.findViewById(R.id.callName) as TextView
         var notification = view.findViewById(R.id.notification) as TextView

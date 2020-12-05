@@ -165,21 +165,22 @@ class RunInBackground : Service() {
             Toast.makeText(this, "No contacts", Toast.LENGTH_LONG).show()
             return
         }
-
+        
         // PULL THE CURRENT CONTACT LIST FROM SHARED PREFERENCES
         val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val gson = Gson()
         val json: String = prefs.getString("key", null) as String
         val type: Type = object : TypeToken<java.util.ArrayList<Contacts>?>() {}.type
         val useList: ArrayList<Contacts> = gson.fromJson(json, type)
-        val contactList: ArrayList<Contacts> = useList
+        var contactList: ArrayList<Contacts> = ArrayList<Contacts>()
 
         // MOVE THROUGH ALL CONTACTS
         while (cursor.moveToNext()) {
             // GET IMAGE FROM CONTACT
-            val fileName = ContactsContract.Contacts.PHOTO_FILE_ID
-            val file = File(fileName)
-            val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+            val imageURI = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI))
+            val uri = Uri.parse(imageURI)
+            val source = createSource(this.contentResolver, uri)
+            val bitmap = decodeBitmap(source)
 
             // GET PHONE NUMBER FROM CONTACT
             val id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
@@ -203,22 +204,21 @@ class RunInBackground : Service() {
             val name =
                 cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
 
+            // GET NOTIFICATION GROUP
+            var notificationGroup = "Group 2"
+            for (check in useList) {
+                if (check.phone == phone) {
+                    notificationGroup = check.notification as String
+                }
+            }
+
             // GET DATE FROM CONTACT (HELPER FUNCTION)
             val date: Date = getDate(phone)
 
             // CREATE CONTACT WITH COLLECTED INFORMATION
-            var contact = Contacts(bitmap, phone, name, "Group 2", date)
+            var contact = Contacts(bitmap, phone, name, notificationGroup, date)
 
-            // CHECK IF CONTACT ALREADY EXISTS IN ARRAY LIST, ADD IF IT DOESN'T
-            var duplicate = false
-            for (check in contactList) {
-                if (check.phone == contact.phone) {
-                    duplicate = true
-                }
-            }
-            if (!duplicate) {
-                contactList.add(contact)
-            }
+            contactList.add(contact)
         }
         // SAVE THE ARRAY TO SHARED PREFERENCES (HELPER FUNCTION)
         saveArray(contactList)

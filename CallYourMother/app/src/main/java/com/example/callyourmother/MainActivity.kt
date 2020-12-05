@@ -34,6 +34,8 @@ import java.lang.reflect.Type
 import java.time.LocalDate
 import java.util.*
 import kotlin.collections.ArrayList
+import android.graphics.ImageDecoder.createSource
+import android.graphics.ImageDecoder.decodeBitmap
 
 var mContacts = ArrayList<Contacts>()
 var mNotification = ArrayList<Contacts>()
@@ -50,13 +52,17 @@ class MainActivity : AppCompatActivity() {
             saveArray(contactArray)
         }
 
-        requestPermissions(arrayOf(Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_CONTACTS), 1)
-
-        if (checkSelfPermission(Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED
-            && checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-            addAllContacts()
+        if (checkSelfPermission(Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED
+            && checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(
+                arrayOf(
+                    Manifest.permission.READ_CALL_LOG,
+                    Manifest.permission.READ_CONTACTS
+                ), 1
+            )
         }
-        else {
+        if (checkSelfPermission(Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED
+            && checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(this, "Permissions needed. Restart app and give permissions", Toast.LENGTH_LONG).show()
         }
 
@@ -65,6 +71,7 @@ class MainActivity : AppCompatActivity() {
         var contacts_button = findViewById<Button>(R.id.contacts_button)
 
         contacts_button.setOnClickListener {
+            addAllContacts()
             val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
             val json: String = prefs.getString("key", null) as String
             var intent = Intent(this, ContactsActivity::class.java)
@@ -130,14 +137,15 @@ class MainActivity : AppCompatActivity() {
         val json: String = prefs.getString("key", null) as String
         val type: Type = object : TypeToken<java.util.ArrayList<Contacts>?>() {}.type
         val useList: ArrayList<Contacts> = gson.fromJson(json, type)
-        val contactList: ArrayList<Contacts> = useList
+        var contactList: ArrayList<Contacts> = ArrayList<Contacts>()
 
         // MOVE THROUGH ALL CONTACTS
         while (cursor.moveToNext()) {
             // GET IMAGE FROM CONTACT
-            val fileName = ContactsContract.Contacts.PHOTO_FILE_ID
-            val file = File(fileName)
-            val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+            val imageURI = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI))
+            val uri = Uri.parse(imageURI)
+            val source = createSource(this.contentResolver, uri)
+            val bitmap = decodeBitmap(source)
 
             // GET PHONE NUMBER FROM CONTACT
             val id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
@@ -161,27 +169,26 @@ class MainActivity : AppCompatActivity() {
             val name =
                 cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
 
+            // GET NOTIFICATION GROUP
+            var notificationGroup = "Group 2"
+            for (check in useList) {
+                if (check.phone == phone) {
+                    notificationGroup = check.notification as String
+                }
+            }
+
             // GET DATE FROM CONTACT (HELPER FUNCTION)
             val date: Date = getDate(phone)
 
             // CREATE CONTACT WITH COLLECTED INFORMATION
-            var contact = Contacts(bitmap, phone, name, "Group 2", date)
+            var contact = Contacts(bitmap, phone, name, notificationGroup, date)
 
-            // CHECK IF CONTACT ALREADY EXISTS IN ARRAY LIST, ADD IF IT DOESN'T
-            var duplicate = false
-            for (check in contactList) {
-                if (check.phone == contact.phone) {
-                    duplicate = true
-                }
-            }
-            if (!duplicate) {
-                contactList.add(contact)
-            }
+            contactList.add(contact)
         }
         // SAVE THE ARRAY TO SHARED PREFERENCES (HELPER FUNCTION)
         saveArray(contactList)
     }
-
+    
     // TAKES IN A NUMBER AND RETURNS THE MOST RECENT DATE THAT NUMBER WAS CALLED BY THE USER
     private fun getDate(phone: String): Date {
         // CREATE A CURSOR OF CALL LOGS

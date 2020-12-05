@@ -1,7 +1,8 @@
 package com.example.callyourmother
 
 import android.Manifest
-import android.app.Notification
+import android.app.ActivityManager
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -10,13 +11,9 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.os.PersistableBundle
-
 import android.preference.PreferenceManager
 import android.provider.CallLog
 import android.provider.ContactsContract
-import android.text.Editable
-
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
@@ -31,7 +28,6 @@ import com.google.gson.reflect.TypeToken
 import java.io.File
 import java.lang.Long
 import java.lang.reflect.Type
-import java.time.LocalDate
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -44,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         if (prefs.getString("key", null) == null) {
             val contactArray: ArrayList<Contacts> = ArrayList<Contacts>()
             saveArray(contactArray)
@@ -65,7 +61,6 @@ class MainActivity : AppCompatActivity() {
         var contacts_button = findViewById<Button>(R.id.contacts_button)
 
         contacts_button.setOnClickListener {
-            val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
             val json: String = prefs.getString("key", null) as String
             var intent = Intent(this, ContactsActivity::class.java)
 
@@ -74,7 +69,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Assigning the mContacts for local use
-        val prefsForContact: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val prefsForContact: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         val gson = Gson()
         val jsonForContact: String = prefsForContact.getString("key", null) as String
         val type: Type = object : TypeToken<java.util.ArrayList<Contacts>?>() {}.type
@@ -103,13 +98,13 @@ class MainActivity : AppCompatActivity() {
 
         // Starts the service for running in background
         val intent : Intent = Intent()
-        val json: String = prefs.getString("key", null) as String
-        intent.putExtra("contacts array", json)
-        intent.putExtra("Group 1", mPrefs.getInt("Notif1", 1))
-        intent.putExtra("Group 2", mPrefs.getInt("Notif2", 5))
-        intent.putExtra("Group 3", mPrefs.getInt("Notif3", 10))
+        //intent.putExtra("Group 1", mPrefs.getInt("Notif1", 1))
+        //intent.putExtra("Group 2", mPrefs.getInt("Notif2", 5))
+        //intent.putExtra("Group 3", mPrefs.getInt("Notif3", 10))
         intent.setClass(applicationContext, RunInBackground::class.java)
-        startService(intent)
+
+        if (!isMyServiceRunning(RunInBackground::class.java))
+            startService(intent)
     }
 
     private fun addAllContacts(){
@@ -246,8 +241,6 @@ class MainActivity : AppCompatActivity() {
                     null
                 )  //Custom Dialog for entering number of days per Notification group
 
-                //TODO
-                // EditText fields where they can enter num of days. Fill the text with existing days if there are previously saved settings, if not make the default 1, 5, 10 days
                 var notif1 = ndialog.findViewById<EditText>(R.id.notification1)
                 var notif2 = ndialog.findViewById<EditText>(R.id.notification2)
                 var notif3 = ndialog.findViewById<EditText>(R.id.notification3)
@@ -321,6 +314,22 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
+    override fun onDestroy() {
+        stopService(Intent(applicationContext, RunInBackground::class.java))
+        val broadcastIntent = Intent().setAction("restartservice").setClass(this, Restarter::class.java)
+        sendBroadcast(broadcastIntent)
+        super.onDestroy()
+    }
+
+    private fun isMyServiceRunning(serviceClass: Class<*>): Boolean {
+        val manager: ActivityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        for (service in manager.getRunningServices(Int.MAX_VALUE)) {
+            if (serviceClass.name == service.service.getClassName()) {
+                return true
+            }
+        }
+        return false
+    }
 
 
 }

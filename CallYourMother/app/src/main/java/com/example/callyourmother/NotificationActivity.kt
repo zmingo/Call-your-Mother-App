@@ -3,7 +3,6 @@ package com.example.callyourmother
 import android.app.ListActivity
 import android.os.Bundle
 import android.preference.PreferenceManager
-import androidx.core.app.ActivityCompat
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.lang.reflect.Type

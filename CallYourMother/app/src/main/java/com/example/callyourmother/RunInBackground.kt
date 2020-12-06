@@ -177,10 +177,21 @@ class RunInBackground : Service() {
         // MOVE THROUGH ALL CONTACTS
         while (cursor.moveToNext()) {
             // GET IMAGE FROM CONTACT
-            val imageURI = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI))
-            val uri = Uri.parse(imageURI)
-            val source = createSource(this.contentResolver, uri)
-            val bitmap = decodeBitmap(source)
+            var imageURI = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI))
+            val d: Drawable = resources.getDrawable(R.drawable.ic_default_contact)
+            var bitmap: Bitmap = Bitmap.createBitmap(
+                100,
+                100,
+                Bitmap.Config.ARGB_8888
+            )
+            val canvas = Canvas(bitmap)
+            d.setBounds(0, 0, canvas.width, canvas.height)
+            d.draw(canvas)
+            if (imageURI != null) {
+                val uri = Uri.parse(imageURI)
+                val source = createSource(this.contentResolver, uri)
+                bitmap = decodeBitmap(source)
+            }
 
             // GET PHONE NUMBER FROM CONTACT
             val id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))

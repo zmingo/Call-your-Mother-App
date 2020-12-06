@@ -64,11 +64,19 @@ class MainActivity : AppCompatActivity() {
 
         contacts_button.setOnClickListener {
             addAllContacts()
+            val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+            val gson = Gson()
             val json: String = prefs.getString("key", null) as String
-            var intent = Intent(this, ContactsActivity::class.java)
-
-            intent.putExtra("contacts array", json)
-            startActivityForResult(intent,0)
+            val type: Type = object : TypeToken<java.util.ArrayList<Contacts>?>() {}.type
+            val contactList: ArrayList<Contacts> = gson.fromJson(json, type)
+            if (contactList.size > 0) {
+                var intent = Intent(this, ContactsActivity::class.java)
+                intent.putExtra("contacts array", json)
+                startActivityForResult(intent, 0)
+            }
+            else {
+                Toast.makeText(this, "No contacts", Toast.LENGTH_LONG).show()
+            }
         }
 
         // Assigning the mContacts for local use

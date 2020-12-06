@@ -25,9 +25,9 @@ class NotificationActivity: ListActivity() {
 
         var mNotification : ArrayList<Contacts> = contactList.filter { contact: Contacts ->
             when (contact.notification) {
-                "Group 1" -> (diffDates(contact.lastCallDate!!) < group1)
-                "Group 2" -> (diffDates(contact.lastCallDate!!) < group2)
-                "Group 3" -> (diffDates(contact.lastCallDate!!) < group3)
+                "Group 1" -> (diffDates(contact.lastCallDate!!) > group1)
+                "Group 2" -> (diffDates(contact.lastCallDate!!) > group2)
+                "Group 3" -> (diffDates(contact.lastCallDate!!) > group3)
                 else -> true
             }
         } as ArrayList<Contacts>

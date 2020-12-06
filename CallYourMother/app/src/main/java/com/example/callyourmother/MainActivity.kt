@@ -7,6 +7,8 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.database.Cursor
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
@@ -30,6 +32,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 import android.graphics.ImageDecoder.createSource
 import android.graphics.ImageDecoder.decodeBitmap
+import android.graphics.drawable.Drawable
 
 var mContacts = ArrayList<Contacts>()
 var mNotification = ArrayList<Contacts>()
@@ -92,9 +95,9 @@ class MainActivity : AppCompatActivity() {
 
         mNotification = mContacts.filter { contact: Contacts ->
             when (contact.notification) {
-                "Group 1" -> (diffDates(contact.lastCallDate!!) < mPrefs.getInt("Notif1", 1))
-                "Group 2" -> (diffDates(contact.lastCallDate!!) < mPrefs.getInt("Notif2", 5))
-                "Group 3" -> (diffDates(contact.lastCallDate!!) < mPrefs.getInt("Notif3", 10))
+                "Group 1" -> (diffDates(contact.lastCallDate!!) > mPrefs.getInt("Notif1", 1))
+                "Group 2" -> (diffDates(contact.lastCallDate!!) > mPrefs.getInt("Notif2", 5))
+                "Group 3" -> (diffDates(contact.lastCallDate!!) > mPrefs.getInt("Notif3", 10))
                 else -> true
             }
         } as ArrayList<Contacts>

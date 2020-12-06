@@ -7,8 +7,11 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.database.Cursor
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.ImageDecoder.createSource
 import android.graphics.ImageDecoder.decodeBitmap
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
@@ -84,9 +87,9 @@ class RunInBackground : Service() {
         // TODO: For testing purposes, assign Group 1 -> true, and change a contact into group 1
         var mNotification : ArrayList<Contacts> = contactList.filter { contact: Contacts ->
             when (contact.notification) {
-                "Group 1" -> (diffDates(contact.lastCallDate!!) < group1)
-                "Group 2" -> (diffDates(contact.lastCallDate!!) < group2)
-                "Group 3" -> (diffDates(contact.lastCallDate!!) < group3)
+                "Group 1" -> (diffDates(contact.lastCallDate!!) > group1)
+                "Group 2" -> (diffDates(contact.lastCallDate!!) > group2)
+                "Group 3" -> (diffDates(contact.lastCallDate!!) > group3)
                 else -> true
             }
         } as ArrayList<Contacts>

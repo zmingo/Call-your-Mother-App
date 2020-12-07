@@ -81,6 +81,7 @@ class ContactsAdapter(Context: Context, Array: ArrayList<Contacts>) : BaseAdapte
                 var selected = parent.adapter.getItem(position) as String
                 contacts.notification = selected
                 saveArray(array)
+                PreferenceManager.getDefaultSharedPreferences(context).edit().putBoolean("cleared", false).commit()
                 notifyDataSetChanged()
             }
 

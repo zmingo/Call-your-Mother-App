@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
+import java.util.*
+import kotlin.collections.ArrayList
 
 class NotificationAdapter(Context: Context, Array: ArrayList<Contacts>) : BaseAdapter()  {
 
@@ -37,7 +39,11 @@ class NotificationAdapter(Context: Context, Array: ArrayList<Contacts>) : BaseAd
         phone.text = contacts.phone
         name.text = contacts.name
         notification.text = contacts.notification
-        lastCalledOn.text = contacts.lastCallDate.toString()
+        if (contacts.lastCallDate == Date(1,1,1900)) {
+            lastCalledOn.text = "Never called before"
+        }
+        else
+            lastCalledOn.text = contacts.lastCallDate.toString()
 
         return view
     }

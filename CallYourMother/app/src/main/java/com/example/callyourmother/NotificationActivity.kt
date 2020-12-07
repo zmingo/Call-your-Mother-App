@@ -53,4 +53,9 @@ class NotificationActivity: ListActivity() {
         val hours = minutes / 60
         return hours / 24
     }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        finish()
+    }
 }

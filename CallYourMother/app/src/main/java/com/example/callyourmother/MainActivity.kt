@@ -325,9 +325,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun diffDates (date : Date) : Int {
+    private fun diffDates (date : Date) : kotlin.Long {
         val cal : Date = Calendar.getInstance().time
-        return (cal.year - date.year) * 365 + (cal.month - date.month) * 30 + (cal.day - date.day)
+        val diff: kotlin.Long = cal.time - date.time
+        val seconds = diff / 1000
+        val minutes = seconds / 60
+        val hours = minutes / 60
+        return hours / 24
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

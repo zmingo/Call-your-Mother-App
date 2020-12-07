@@ -30,8 +30,11 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.jvm.Throws
 
-
+// https://stackoverflow.com/a/52258125
+// Used this logic to run this service indefinitely with some delay using a handler
 class RunInBackground : Service() {
+    var UNIQUE_REQUEST_CODE = 0
+
     override fun onCreate() {
         super.onCreate()
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) startMyOwnForeground() else startForeground(
@@ -40,6 +43,7 @@ class RunInBackground : Service() {
         )
     }
 
+    // A custom class to run on the foreground so app can run without being killed by the android
     @RequiresApi(Build.VERSION_CODES.O)
     private fun startMyOwnForeground() {
         val NOTIFICATION_CHANNEL_ID = "example.permanence"
@@ -61,6 +65,7 @@ class RunInBackground : Service() {
             .setCategory(Notification.CATEGORY_SERVICE)
             .build()
         startForeground(2, notification)
+
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -87,7 +92,7 @@ class RunInBackground : Service() {
         var group3 = prefs.getInt("Notif3", 10)
 
 
-        // TODO: For testing purposes, assign Group 1 -> true, and change a contact into group 1
+        // For testing purposes, assign Group 1 -> true, and change a contact into group 1
         var mNotification: ArrayList<Contacts> = contactList.filter { contact: Contacts ->
             when (contact.notification) {
                 "Group 1" -> (diffDates(contact.lastCallDate!!) > group1)
@@ -102,6 +107,7 @@ class RunInBackground : Service() {
             startNotification(mNotification)
         }
 
+
         //Stops once command is done
         stopSelf()
 
@@ -114,20 +120,22 @@ class RunInBackground : Service() {
         throw UnsupportedOperationException("Not yet implemented")
     }
 
-    //TODO: For testing purpose, change the time delay to required time in milliseconds
+    //for testing purpose, change the time delay to required time in milliseconds
+    //sends out a broadcast every day so it can run in the background when destroyed
     override fun onDestroy() {
         val time: kotlin.Long = 1000 * 60 * 60 * 24
-        super.onDestroy()
         val broadCastIntent =
             Intent().setAction("restartservice").setClass(this, Restarter::class.java)
         val mHandler = Handler()
         mHandler.postDelayed(Runnable() {
             sendBroadcast(broadCastIntent)
         }, time)
-
+        super.onDestroy()
     }
 
 
+
+    // fires a notification based on number of people that user has not called
     private fun startNotification(array: ArrayList<Contacts>) {
         var CHANNEL_ID: String
         var channelname: String
@@ -144,23 +152,28 @@ class RunInBackground : Service() {
             .setContentText("You have not called " + array.size.toString() + " people in your contact")
             .setContentTitle("New Notification")
 
+        val backIntent = Intent(this, MainActivity::class.java)
+        backIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
         val notificationIntent = Intent(this, NotificationActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(
-            applicationContext,
-            0,
-            notificationIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT
-        )
+        //val stackBuilder: TaskStackBuilder = TaskStackBuilder.create(applicationContext)
+        //stackBuilder.addNextIntentWithParentStack(notificationIntent)
+
+        val pendingIntent = PendingIntent.getActivities(this, UNIQUE_REQUEST_CODE++,
+            arrayOf<Intent>(backIntent, notificationIntent), PendingIntent.FLAG_ONE_SHOT)
         builder.setContentIntent(pendingIntent)
 
 
         notificationManager.notify(0, builder.build())
     }
 
-    private fun diffDates(date: Date): Int {
-        val cal: Date = Calendar.getInstance().time
-        return (cal.year - date.year) * 365 + (cal.month - date.month) * 30 + (cal.day - date.day)
+    private fun diffDates(date: Date): kotlin.Long {
+        val cal : Date = Calendar.getInstance().time
+        val diff: kotlin.Long = cal.time - date.time
+        val seconds = diff / 1000
+        val minutes = seconds / 60
+        val hours = minutes / 60
+        return hours / 24
     }
 
     private fun addAllContacts() {

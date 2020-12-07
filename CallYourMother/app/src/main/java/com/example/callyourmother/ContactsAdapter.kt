@@ -45,11 +45,13 @@ class ContactsAdapter(Context: Context, Array: ArrayList<Contacts>) : BaseAdapte
         var notification = view.findViewById(R.id.notification) as Spinner
 
         var bitmap: Bitmap? = null
+        // https://developer.android.com/reference/android/graphics/ImageDecoder#createSource(android.content.ContentResolver,%20android.net.Uri)
         if (contacts.image != null) {
             val uri = Uri.parse(contacts.image)
             val source = ImageDecoder.createSource(context.contentResolver, uri)
             bitmap = ImageDecoder.decodeBitmap(source)
         }
+        // https://stackoverflow.com/questions/15255611/how-to-convert-a-drawable-image-from-resources-to-a-bitmap/15255786
         else {
             val d: Drawable = context.resources.getDrawable(R.drawable.iconfinder_contacts_309089)
             bitmap = Bitmap.createBitmap(
@@ -60,7 +62,7 @@ class ContactsAdapter(Context: Context, Array: ArrayList<Contacts>) : BaseAdapte
             val canvas = Canvas(bitmap)
             d.setBounds(0, 0, canvas.width, canvas.height)
             d.draw(canvas)
-           }
+        }
 
         image.setImageBitmap(bitmap)
         phone.text = contacts.phone
@@ -90,6 +92,7 @@ class ContactsAdapter(Context: Context, Array: ArrayList<Contacts>) : BaseAdapte
         return view
     }
 
+    // https://stackoverflow.com/questions/38892519/store-custom-arraylist-in-sharedpreferences-and-get-it-from-there
     private fun saveArray(contactList: ArrayList<Contacts>) {
         val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         var editor = prefs.edit()

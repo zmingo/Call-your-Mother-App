@@ -2,6 +2,11 @@ package com.example.callyourmother
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.ImageDecoder
+import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.preference.PreferenceManager
 import android.view.LayoutInflater
 import android.view.View
@@ -39,7 +44,25 @@ class ContactsAdapter(Context: Context, Array: ArrayList<Contacts>) : BaseAdapte
         var name = view.findViewById(R.id.Name) as TextView
         var notification = view.findViewById(R.id.notification) as Spinner
 
-        image.setImageBitmap(contacts.image)
+        var bitmap: Bitmap? = null
+        if (contacts.image != null) {
+            val uri = Uri.parse(contacts.image)
+            val source = ImageDecoder.createSource(context.contentResolver, uri)
+            bitmap = ImageDecoder.decodeBitmap(source)
+        }
+        else {
+            val d: Drawable = context.resources.getDrawable(R.drawable.iconfinder_contacts_309089)
+            bitmap = Bitmap.createBitmap(
+                50,
+                50,
+                Bitmap.Config.ARGB_8888
+            )
+            val canvas = Canvas(bitmap)
+            d.setBounds(0, 0, canvas.width, canvas.height)
+            d.draw(canvas)
+           }
+
+        image.setImageBitmap(bitmap)
         phone.text = contacts.phone
         name.text = contacts.name
 
@@ -71,7 +94,8 @@ class ContactsAdapter(Context: Context, Array: ArrayList<Contacts>) : BaseAdapte
         val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         var editor = prefs.edit()
         val gson = Gson()
-        val jsonText = gson.toJson(contactList)
+        var jsonText: String? = gson.toJson(contactList)
+
         editor.putString("key", jsonText)
         editor.commit()
     }

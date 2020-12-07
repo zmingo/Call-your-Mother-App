@@ -75,7 +75,6 @@ class MainActivity : AppCompatActivity() {
             val contactList: ArrayList<Contacts> = gson.fromJson(json, type)
             if (contactList.size > 0) {
                 var intent = Intent(this, ContactsActivity::class.java)
-
                 startActivityForResult(intent, 0)
             }
             else {
@@ -146,23 +145,23 @@ class MainActivity : AppCompatActivity() {
             // GET IMAGE FROM CONTACT
             var imageURI = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI))
 
-            var bitmap: Bitmap
-            if (imageURI != null) {
-                val uri = Uri.parse(imageURI)
-                val source = createSource(this.contentResolver, uri)
-                bitmap = decodeBitmap(source)
-            }
-            else {
-                val d: Drawable = resources.getDrawable(R.drawable.ic_default_contact)
-                bitmap = Bitmap.createBitmap(
-                    50,
-                    50,
-                    Bitmap.Config.ARGB_8888
-                )
-                val canvas = Canvas(bitmap)
-                d.setBounds(0, 0, canvas.width, canvas.height)
-                d.draw(canvas)
-            }
+            var bitmap = imageURI
+//            if (imageURI != null) {
+//                val uri = Uri.parse(imageURI)
+//                val source = createSource(this.contentResolver, uri)
+//                bitmap = decodeBitmap(source)
+//            }
+//            else {
+//                val d: Drawable = resources.getDrawable(R.drawable.iconfinder_contacts_309089)
+//                bitmap = Bitmap.createBitmap(
+//                    50,
+//                    50,
+//                    Bitmap.Config.ARGB_8888
+//                )
+//                val canvas = Canvas(bitmap)
+//                d.setBounds(0, 0, canvas.width, canvas.height)
+//                d.draw(canvas)
+////            }
             // GET PHONE NUMBER FROM CONTACT
             val id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
             var phone = ""

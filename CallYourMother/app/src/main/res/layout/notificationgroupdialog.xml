@@ -29,7 +29,7 @@
         android:layout_toRightOf="@id/notification1Label"
         android:layout_marginTop="17dp"
         android:layout_marginLeft="10dp"
-        android:textSize="20sp"
+        android:textSize="18sp"
         android:textFontWeight="600"
         android:inputType="number"
         android:textColor="@color/colorBlack"

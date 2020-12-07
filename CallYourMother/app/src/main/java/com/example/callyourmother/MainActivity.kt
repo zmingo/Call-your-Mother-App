@@ -33,6 +33,7 @@ import kotlin.collections.ArrayList
 import android.graphics.ImageDecoder.createSource
 import android.graphics.ImageDecoder.decodeBitmap
 import android.graphics.drawable.Drawable
+import android.util.Log
 
 var mContacts = ArrayList<Contacts>()
 var mNotification = ArrayList<Contacts>()
@@ -74,7 +75,7 @@ class MainActivity : AppCompatActivity() {
             val contactList: ArrayList<Contacts> = gson.fromJson(json, type)
             if (contactList.size > 0) {
                 var intent = Intent(this, ContactsActivity::class.java)
-                intent.putExtra("contacts array", json)
+
                 startActivityForResult(intent, 0)
             }
             else {
@@ -106,7 +107,6 @@ class MainActivity : AppCompatActivity() {
         var notification_button = findViewById<Button>(R.id.notifications_button)
         notification_button.setOnClickListener {
             var intent = Intent(this, NotificationActivity::class.java)
-            intent.putExtra("notifications array", mNotification)
             startActivityForResult(intent, 0)
         }
 
@@ -132,7 +132,6 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "No contacts", Toast.LENGTH_LONG).show()
             return
         }
-        
         // PULL THE CURRENT CONTACT LIST FROM SHARED PREFERENCES
         val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val gson = Gson()
@@ -144,22 +143,26 @@ class MainActivity : AppCompatActivity() {
         // MOVE THROUGH ALL CONTACTS
         while (cursor.moveToNext()) {
             // GET IMAGE FROM CONTACT
+            // GET IMAGE FROM CONTACT
             var imageURI = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI))
-            val d: Drawable = resources.getDrawable(R.drawable.ic_default_contact)
-            var bitmap: Bitmap = Bitmap.createBitmap(
-                100,
-                100,
-                Bitmap.Config.ARGB_8888
-            )
-            val canvas = Canvas(bitmap)
-            d.setBounds(0, 0, canvas.width, canvas.height)
-            d.draw(canvas)
+
+            var bitmap: Bitmap
             if (imageURI != null) {
                 val uri = Uri.parse(imageURI)
                 val source = createSource(this.contentResolver, uri)
                 bitmap = decodeBitmap(source)
             }
-
+            else {
+                val d: Drawable = resources.getDrawable(R.drawable.ic_default_contact)
+                bitmap = Bitmap.createBitmap(
+                    50,
+                    50,
+                    Bitmap.Config.ARGB_8888
+                )
+                val canvas = Canvas(bitmap)
+                d.setBounds(0, 0, canvas.width, canvas.height)
+                d.draw(canvas)
+            }
             // GET PHONE NUMBER FROM CONTACT
             val id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
             var phone = ""
@@ -281,7 +284,7 @@ class MainActivity : AppCompatActivity() {
                     notif2.setText(mPrefs.getInt("Notif2", 5).toString())
                 }
                 if (notif3.text.isEmpty() || notif3.text.toString().toInt() == 0) {
-                    notif3.setText(mPrefs.getInt("notif3", 10).toString())
+                    notif3.setText(mPrefs.getInt("Notif3", 10).toString())
                 }
 
 

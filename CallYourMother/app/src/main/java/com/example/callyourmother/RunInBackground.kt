@@ -79,9 +79,9 @@ class RunInBackground : Service() {
         val json: String = prefs.getString("key", null) as String
         val type: Type = object : TypeToken<java.util.ArrayList<Contacts>?>() {}.type
         val contactList: ArrayList<Contacts> = gson.fromJson(json, type)
-        var group1 = prefs.getInt("Notif1", 1) //intent!!.getIntExtra("Group 1", 1)
-        var group2 = prefs.getInt("Notif2", 5) //intent!!.getIntExtra("Group 2", 5)
-        var group3 = prefs.getInt("Notif3", 10) //intent!!.getIntExtra("Group 3", 10)
+        var group1 = prefs.getInt("Notif1", 1)
+        var group2 = prefs.getInt("Notif2", 5)
+        var group3 = prefs.getInt("Notif3", 10)
 
 
         // TODO: For testing purposes, assign Group 1 -> true, and change a contact into group 1
@@ -142,9 +142,7 @@ class RunInBackground : Service() {
             .setContentTitle("New Notification")
 
 
-        //PreferenceManager.getDefaultSharedPreferences(applicationContext).edit().putBoolean("cleared", false).commit()
         val notificationIntent = Intent(this, NotificationActivity::class.java)
-        //notificationIntent.putExtra("notifications array", array)
         val pendingIntent = PendingIntent.getActivity(applicationContext,0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT )
         builder.setContentIntent(pendingIntent)
 

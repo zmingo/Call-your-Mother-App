@@ -29,7 +29,7 @@
         android:layout_toRightOf="@id/notification1Label"
         android:layout_marginTop="17dp"
         android:layout_marginLeft="10dp"
-        android:textSize="20sp"
+        android:textSize="18sp"
         android:textFontWeight="600"
         android:inputType="number"
         android:textColor="@color/colorBlack"
@@ -96,7 +96,7 @@
         android:layout_centerHorizontal="true"
         android:layout_below="@id/notification3Label"
         android:layout_marginTop="20dp"
-        android:textSize="12dp"
+        android:textSize="12sp"
         android:textFontWeight="500"
         android:text="Enter a whole number of days for each notification group"
         />
@@ -107,7 +107,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/info"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="15sp"
         android:text="Save"
         />
 

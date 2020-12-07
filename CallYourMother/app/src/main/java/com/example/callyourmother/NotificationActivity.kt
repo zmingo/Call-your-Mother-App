@@ -44,8 +44,13 @@ class NotificationActivity: ListActivity() {
         listAdapter = adapters
     }
 
-    private fun diffDates (date : Date) : Int {
+    // https://stackoverflow.com/questions/10690370/how-do-i-get-difference-between-two-dates-in-android-tried-every-thing-and-pos
+    private fun diffDates (date : Date) : Long {
         val cal : Date = Calendar.getInstance().time
-        return (cal.year - date.year) * 365 + (cal.month - date.month) * 30 + (cal.day - date.day)
+        val diff: Long = cal.time - date.time
+        val seconds = diff / 1000
+        val minutes = seconds / 60
+        val hours = minutes / 60
+        return hours / 24
     }
 }

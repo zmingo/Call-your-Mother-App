@@ -49,8 +49,8 @@ class MainActivity : AppCompatActivity() {
             val contactArray: ArrayList<Contacts> = ArrayList<Contacts>()
             saveArray(contactArray)
         }
-
-       if (checkSelfPermission(Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED
+        // https://stackoverflow.com/questions/34342816/android-6-0-multiple-permissions
+        if (checkSelfPermission(Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED
             && checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(
                 arrayOf(
@@ -59,6 +59,7 @@ class MainActivity : AppCompatActivity() {
                 ), 1
             )
         }
+        // https://stackoverflow.com/questions/34342816/android-6-0-multiple-permissions
         if (checkSelfPermission(Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED
             && checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(this, "Permissions needed. Restart app and give permissions", Toast.LENGTH_LONG).show()
@@ -68,6 +69,7 @@ class MainActivity : AppCompatActivity() {
 
         contacts_button.setOnClickListener {
             addAllContacts()
+            // https://stackoverflow.com/questions/38892519/store-custom-arraylist-in-sharedpreferences-and-get-it-from-there
             val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
             val gson = Gson()
             val json: String = prefs.getString("key", null) as String
@@ -82,6 +84,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // https://stackoverflow.com/questions/38892519/store-custom-arraylist-in-sharedpreferences-and-get-it-from-there
         // Assigning the mContacts for local use
         val prefsForContact: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         val gson = Gson()
@@ -111,9 +114,6 @@ class MainActivity : AppCompatActivity() {
 
         // Starts the service for running in background
         val intent : Intent = Intent()
-        //intent.putExtra("Group 1", mPrefs.getInt("Notif1", 1))
-        //intent.putExtra("Group 2", mPrefs.getInt("Notif2", 5))
-        //intent.putExtra("Group 3", mPrefs.getInt("Notif3", 10))
         intent.setClass(applicationContext, RunInBackground::class.java)
 
         if (!isMyServiceRunning(RunInBackground::class.java))
@@ -121,6 +121,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addAllContacts(){
+        // https://stackoverflow.com/questions/12562151/android-get-all-contacts/41827064
         // CREATE CURSOR TO MOVE THROUGH CONTACTS
         var cursor: Cursor = applicationContext.contentResolver.query(
             ContactsContract.Contacts.CONTENT_URI,null,
@@ -131,6 +132,7 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "No contacts", Toast.LENGTH_LONG).show()
             return
         }
+        // https://stackoverflow.com/questions/38892519/store-custom-arraylist-in-sharedpreferences-and-get-it-from-there
         // PULL THE CURRENT CONTACT LIST FROM SHARED PREFERENCES
         val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val gson = Gson()
@@ -139,29 +141,15 @@ class MainActivity : AppCompatActivity() {
         val useList: ArrayList<Contacts> = gson.fromJson(json, type)
         var contactList: ArrayList<Contacts> = ArrayList()
 
+        // https://stackoverflow.com/questions/12562151/android-get-all-contacts/41827064
         // MOVE THROUGH ALL CONTACTS
         while (cursor.moveToNext()) {
+            // https://developer.android.com/reference/android/provider/ContactsContract
             // GET IMAGE FROM CONTACT
-            // GET IMAGE FROM CONTACT
-            var imageURI = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI))
+            var bitmap = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI))
 
-            var bitmap = imageURI
-//            if (imageURI != null) {
-//                val uri = Uri.parse(imageURI)
-//                val source = createSource(this.contentResolver, uri)
-//                bitmap = decodeBitmap(source)
-//            }
-//            else {
-//                val d: Drawable = resources.getDrawable(R.drawable.iconfinder_contacts_309089)
-//                bitmap = Bitmap.createBitmap(
-//                    50,
-//                    50,
-//                    Bitmap.Config.ARGB_8888
-//                )
-//                val canvas = Canvas(bitmap)
-//                d.setBounds(0, 0, canvas.width, canvas.height)
-//                d.draw(canvas)
-////            }
+            // https://developer.android.com/reference/android/provider/ContactsContract
+            // https://gist.github.com/srayhunter/47ab2816b01f0b00b79150150feb2eb2
             // GET PHONE NUMBER FROM CONTACT
             val id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
             var phone = ""
@@ -174,12 +162,12 @@ class MainActivity : AppCompatActivity() {
                     null
                 )!!
                 if (phoneCursor != null && phoneCursor.moveToFirst()) {
-                    phone =
-                        phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                    phone = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
                     phoneCursor.close()
                 }
             }
 
+            // https://developer.android.com/reference/android/provider/ContactsContract
             // GET NAME FROM CONTACT
             val name =
                 cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
@@ -192,6 +180,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
+            // https://developer.android.com/reference/android/provider/ContactsContract
             // GET DATE FROM CONTACT (HELPER FUNCTION)
             val date: Date = getDate(phone)
 
@@ -206,6 +195,7 @@ class MainActivity : AppCompatActivity() {
 
     // TAKES IN A NUMBER AND RETURNS THE MOST RECENT DATE THAT NUMBER WAS CALLED BY THE USER
     private fun getDate(phone: String): Date {
+        // https://stackoverflow.com/questions/12562151/android-get-all-contacts/41827064
         // CREATE A CURSOR OF CALL LOGS
         val allCalls: Uri = Uri.parse("content://call_log/calls")
         val cursor: Cursor = applicationContext.contentResolver.query(allCalls, null,
@@ -218,6 +208,7 @@ class MainActivity : AppCompatActivity() {
 
         // CHECKER TO MAKE SURE MOST RECENT LOG ISN'T REPLACED BY OLDER LOG
         var notFound = true
+        // https://stackoverflow.com/questions/12562151/android-get-all-contacts/41827064
         // ITERATE THROUGH LOGS UNTIL MATCH IS FOUND
         while (cursor.moveToNext() && notFound) {
             // MATCH IS FOUND IF THE PHONE NUMBER GIVEN IS THE PHONE NUMBER OF THE CURRENT LOG
@@ -228,6 +219,7 @@ class MainActivity : AppCompatActivity() {
                 notFound = false
             }
         }
+        // https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.js/-date/
         // IF LOG IS NOT FOUND, RETURN FILLER DATE
         if (notFound) {
             return Date(1, 1, 1900)
@@ -236,6 +228,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // SAVE THE ARRAY TO SHARED PREFERENCES USING JSON
+    // https://stackoverflow.com/questions/38892519/store-custom-arraylist-in-sharedpreferences-and-get-it-from-there
     private fun saveArray(contactList: ArrayList<Contacts>) {
         val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         var editor = prefs.edit()
@@ -358,6 +351,4 @@ class MainActivity : AppCompatActivity() {
         }
         return false
     }
-
-
 }

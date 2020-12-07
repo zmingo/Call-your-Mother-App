@@ -62,15 +62,18 @@ class RunInBackground : Service() {
             .build()
         startForeground(2, notification)
     }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        val prefs: SharedPreferences =
+            PreferenceManager.getDefaultSharedPreferences(applicationContext)
         if (prefs.getString("key", null) == null) {
             val contactArray: ArrayList<Contacts> = ArrayList<Contacts>()
             saveArray(contactArray)
         }
 
         if (checkSelfPermission(Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED
-            && checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+            && checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
+        ) {
             addAllContacts()
         }
 
@@ -85,7 +88,7 @@ class RunInBackground : Service() {
 
 
         // TODO: For testing purposes, assign Group 1 -> true, and change a contact into group 1
-        var mNotification : ArrayList<Contacts> = contactList.filter { contact: Contacts ->
+        var mNotification: ArrayList<Contacts> = contactList.filter { contact: Contacts ->
             when (contact.notification) {
                 "Group 1" -> (diffDates(contact.lastCallDate!!) > group1)
                 "Group 2" -> (diffDates(contact.lastCallDate!!) > group2)
@@ -113,28 +116,28 @@ class RunInBackground : Service() {
 
     //TODO: For testing purpose, change the time delay to required time in milliseconds
     override fun onDestroy() {
-        val time: kotlin.Long = 1000 * 60 * 60 *24
+        val time: kotlin.Long = 1000 * 60 * 60 * 24
         super.onDestroy()
-        val broadCastIntent = Intent().setAction("restartservice").setClass(this, Restarter::class.java)
+        val broadCastIntent =
+            Intent().setAction("restartservice").setClass(this, Restarter::class.java)
         val mHandler = Handler()
-        mHandler.postDelayed(Runnable(){
+        mHandler.postDelayed(Runnable() {
             sendBroadcast(broadCastIntent)
-        },  time)
+        }, time)
 
     }
 
 
-
-    private fun startNotification(array : ArrayList<Contacts>) {
-        var CHANNEL_ID : String
-        var channelname : String
+    private fun startNotification(array: ArrayList<Contacts>) {
+        var CHANNEL_ID: String
+        var channelname: String
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        var mChannel : NotificationChannel
+        var mChannel: NotificationChannel
 
-            CHANNEL_ID = "notif_channel"
-            channelname = "channel for notification"
-            mChannel = NotificationChannel(CHANNEL_ID, channelname, NotificationManager.IMPORTANCE_HIGH)
-            notificationManager.createNotificationChannel(mChannel)
+        CHANNEL_ID = "notif_channel"
+        channelname = "channel for notification"
+        mChannel = NotificationChannel(CHANNEL_ID, channelname, NotificationManager.IMPORTANCE_HIGH)
+        notificationManager.createNotificationChannel(mChannel)
 
         val builder = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
@@ -143,58 +146,55 @@ class RunInBackground : Service() {
 
 
         val notificationIntent = Intent(this, NotificationActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(applicationContext,0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT )
+        val pendingIntent = PendingIntent.getActivity(
+            applicationContext,
+            0,
+            notificationIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
         builder.setContentIntent(pendingIntent)
 
 
         notificationManager.notify(0, builder.build())
     }
 
-    private fun diffDates (date : Date) : Int {
-        val cal : Date = Calendar.getInstance().time
+    private fun diffDates(date: Date): Int {
+        val cal: Date = Calendar.getInstance().time
         return (cal.year - date.year) * 365 + (cal.month - date.month) * 30 + (cal.day - date.day)
     }
 
-    private fun addAllContacts(){
+    private fun addAllContacts() {
+        // https://stackoverflow.com/questions/12562151/android-get-all-contacts/41827064
         // CREATE CURSOR TO MOVE THROUGH CONTACTS
         var cursor: Cursor = applicationContext.contentResolver.query(
-            ContactsContract.Contacts.CONTENT_URI,null,
-            null, null) as Cursor
+            ContactsContract.Contacts.CONTENT_URI, null,
+            null, null
+        ) as Cursor
 
         // CHECK IF THERE ARE NO CONTACTS ON PHONE
         if (cursor.count == 0) {
             Toast.makeText(this, "No contacts", Toast.LENGTH_LONG).show()
             return
         }
-        
+        // https://stackoverflow.com/questions/38892519/store-custom-arraylist-in-sharedpreferences-and-get-it-from-there
         // PULL THE CURRENT CONTACT LIST FROM SHARED PREFERENCES
         val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val gson = Gson()
         val json: String = prefs.getString("key", null) as String
         val type: Type = object : TypeToken<java.util.ArrayList<Contacts>?>() {}.type
         val useList: ArrayList<Contacts> = gson.fromJson(json, type)
-        var contactList: ArrayList<Contacts> = ArrayList<Contacts>()
+        var contactList: ArrayList<Contacts> = ArrayList()
 
+        // https://stackoverflow.com/questions/12562151/android-get-all-contacts/41827064
         // MOVE THROUGH ALL CONTACTS
         while (cursor.moveToNext()) {
+            // https://developer.android.com/reference/android/provider/ContactsContract
             // GET IMAGE FROM CONTACT
-            var imageURI = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI))
-//            val d: Drawable = resources.getDrawable(R.drawable.iconfinder_contacts_309089)
-            var bitmap = imageURI
-//            bitmap = Bitmap.createBitmap(
-//                100,
-//                100,
-//                Bitmap.Config.ARGB_8888
-//            )
-//            val canvas = Canvas(bitmap)
-//            d.setBounds(0, 0, canvas.width, canvas.height)
-//            d.draw(canvas)
-//            if (imageURI != null) {
-//                val uri = Uri.parse(imageURI)
-//                val source = createSource(this.contentResolver, uri)
-//                bitmap = decodeBitmap(source)
-//            }
+            var bitmap =
+                cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI))
 
+            // https://developer.android.com/reference/android/provider/ContactsContract
+            // https://gist.github.com/srayhunter/47ab2816b01f0b00b79150150feb2eb2
             // GET PHONE NUMBER FROM CONTACT
             val id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
             var phone = ""
@@ -213,6 +213,7 @@ class RunInBackground : Service() {
                 }
             }
 
+            // https://developer.android.com/reference/android/provider/ContactsContract
             // GET NAME FROM CONTACT
             val name =
                 cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
@@ -225,6 +226,7 @@ class RunInBackground : Service() {
                 }
             }
 
+            // https://developer.android.com/reference/android/provider/ContactsContract
             // GET DATE FROM CONTACT (HELPER FUNCTION)
             val date: Date = getDate(phone)
 
@@ -239,10 +241,13 @@ class RunInBackground : Service() {
 
     // TAKES IN A NUMBER AND RETURNS THE MOST RECENT DATE THAT NUMBER WAS CALLED BY THE USER
     private fun getDate(phone: String): Date {
+        // https://stackoverflow.com/questions/12562151/android-get-all-contacts/41827064
         // CREATE A CURSOR OF CALL LOGS
         val allCalls: Uri = Uri.parse("content://call_log/calls")
-        val cursor: Cursor = applicationContext.contentResolver.query(allCalls, null,
-            null, null, null) as Cursor
+        val cursor: Cursor = applicationContext.contentResolver.query(
+            allCalls, null,
+            null, null, null
+        ) as Cursor
 
         // REMOVE PHONE NUMBER FORMATTING FROM GIVEN NUMBER
         var callDate = ""
@@ -251,6 +256,7 @@ class RunInBackground : Service() {
 
         // CHECKER TO MAKE SURE MOST RECENT LOG ISN'T REPLACED BY OLDER LOG
         var notFound = true
+        // https://stackoverflow.com/questions/12562151/android-get-all-contacts/41827064
         // ITERATE THROUGH LOGS UNTIL MATCH IS FOUND
         while (cursor.moveToNext() && notFound) {
             // MATCH IS FOUND IF THE PHONE NUMBER GIVEN IS THE PHONE NUMBER OF THE CURRENT LOG
@@ -261,6 +267,7 @@ class RunInBackground : Service() {
                 notFound = false
             }
         }
+        // https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.js/-date/
         // IF LOG IS NOT FOUND, RETURN FILLER DATE
         if (notFound) {
             return Date(1, 1, 1900)
@@ -269,6 +276,7 @@ class RunInBackground : Service() {
     }
 
     // SAVE THE ARRAY TO SHARED PREFERENCES USING JSON
+    // https://stackoverflow.com/questions/38892519/store-custom-arraylist-in-sharedpreferences-and-get-it-from-there
     private fun saveArray(contactList: ArrayList<Contacts>) {
         val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         var editor = prefs.edit()
@@ -277,5 +285,4 @@ class RunInBackground : Service() {
         editor.putString("key", jsonText)
         editor.commit()
     }
-
 }

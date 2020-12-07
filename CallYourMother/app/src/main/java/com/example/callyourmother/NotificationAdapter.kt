@@ -27,18 +27,20 @@ class NotificationAdapter(Context: Context, Array: ArrayList<Contacts>) : BaseAd
 
     override fun getView(p0: Int, p1: View?, p2: ViewGroup?): View {
         var view = p1
-        var contacts = getItem(p0)
+        val contacts = getItem(p0)
         if (view == null) {
-            view = inflate!!.inflate(R.layout.notifications, p2, false);
+            view = inflate!!.inflate(R.layout.notifications, p2, false)
         }
 
-        var lastCalledOn = view?.findViewById(R.id.lastcalledon) as TextView
-        var phone = view.findViewById(R.id.num) as TextView
-        var name = view.findViewById(R.id.callName) as TextView
-        var notification = view.findViewById(R.id.notification) as TextView
+        val lastCalledOn = view?.findViewById(R.id.lastcalledon) as TextView
+        val phone = view.findViewById(R.id.num) as TextView
+        val name = view.findViewById(R.id.callName) as TextView
+        val notification = view.findViewById(R.id.notification) as TextView
         phone.text = contacts.phone
         name.text = contacts.name
         notification.text = contacts.notification
+
+        //Checks if the person has never been called before and displays text instead of default date
         if (contacts.lastCallDate == Date(1,1,1900)) {
             lastCalledOn.text = "Never called before"
         }
@@ -46,21 +48,6 @@ class NotificationAdapter(Context: Context, Array: ArrayList<Contacts>) : BaseAd
             lastCalledOn.text = contacts.lastCallDate.toString()
 
         return view
-    }
-
-    fun add(x: Contacts) {
-        array.add(x)
-        notifyDataSetChanged()
-    }
-
-    fun delete(x: Contacts) {
-        array.remove(x)
-        notifyDataSetChanged()
-    }
-
-    fun deleteAll() {
-        array.clear()
-        notifyDataSetChanged()
     }
 
     companion object {

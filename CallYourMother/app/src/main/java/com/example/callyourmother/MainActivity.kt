@@ -7,8 +7,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.database.Cursor
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
@@ -30,10 +28,6 @@ import java.lang.Long
 import java.lang.reflect.Type
 import java.util.*
 import kotlin.collections.ArrayList
-import android.graphics.ImageDecoder.createSource
-import android.graphics.ImageDecoder.decodeBitmap
-import android.graphics.drawable.Drawable
-import android.util.Log
 
 var mContacts = ArrayList<Contacts>()
 var mNotification = ArrayList<Contacts>()
@@ -44,12 +38,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        //initializes shared preferences if first ever start of app
         val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         if (prefs.getString("key", null) == null) {
-            val contactArray: ArrayList<Contacts> = ArrayList<Contacts>()
+            val contactArray: ArrayList<Contacts> = ArrayList()
             saveArray(contactArray)
         }
         // https://stackoverflow.com/questions/34342816/android-6-0-multiple-permissions
+        //Requests permissions needed
         if (checkSelfPermission(Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED
             && checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(
@@ -60,23 +56,25 @@ class MainActivity : AppCompatActivity() {
             )
         }
         // https://stackoverflow.com/questions/34342816/android-6-0-multiple-permissions
+        //Checks for permissions
         if (checkSelfPermission(Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED
             && checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(this, "Permissions needed. Restart app and give permissions", Toast.LENGTH_LONG).show()
         }
 
-        var contacts_button = findViewById<Button>(R.id.contacts_button)
+        val contactsButton = findViewById<Button>(R.id.contacts_button)
 
-        contacts_button.setOnClickListener {
+        contactsButton.setOnClickListener {
             addAllContacts()
             // https://stackoverflow.com/questions/38892519/store-custom-arraylist-in-sharedpreferences-and-get-it-from-there
+            //Pulls shared preferences and checks for any contacts before allowing to proceed to contacts activity
             val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
             val gson = Gson()
             val json: String = prefs.getString("key", null) as String
             val type: Type = object : TypeToken<java.util.ArrayList<Contacts>?>() {}.type
             val contactList: ArrayList<Contacts> = gson.fromJson(json, type)
             if (contactList.size > 0) {
-                var intent = Intent(this, ContactsActivity::class.java)
+                val intent = Intent(this, ContactsActivity::class.java)
                 startActivityForResult(intent, 0)
             }
             else {
@@ -106,9 +104,9 @@ class MainActivity : AppCompatActivity() {
         } as ArrayList<Contacts>
 
 
-        var notification_button = findViewById<Button>(R.id.notifications_button)
-        notification_button.setOnClickListener {
-            var intent = Intent(this, NotificationActivity::class.java)
+        val notificationButton = findViewById<Button>(R.id.notifications_button)
+        notificationButton.setOnClickListener {
+            val intent = Intent(this, NotificationActivity::class.java)
             startActivityForResult(intent, 0)
         }
 
@@ -123,7 +121,7 @@ class MainActivity : AppCompatActivity() {
     private fun addAllContacts(){
         // https://stackoverflow.com/questions/12562151/android-get-all-contacts/41827064
         // CREATE CURSOR TO MOVE THROUGH CONTACTS
-        var cursor: Cursor = applicationContext.contentResolver.query(
+        val cursor: Cursor = applicationContext.contentResolver.query(
             ContactsContract.Contacts.CONTENT_URI,null,
             null, null) as Cursor
 
@@ -139,14 +137,14 @@ class MainActivity : AppCompatActivity() {
         val json: String = prefs.getString("key", null) as String
         val type: Type = object : TypeToken<java.util.ArrayList<Contacts>?>() {}.type
         val useList: ArrayList<Contacts> = gson.fromJson(json, type)
-        var contactList: ArrayList<Contacts> = ArrayList()
+        val contactList: ArrayList<Contacts> = ArrayList()
 
         // https://stackoverflow.com/questions/12562151/android-get-all-contacts/41827064
         // MOVE THROUGH ALL CONTACTS
         while (cursor.moveToNext()) {
             // https://developer.android.com/reference/android/provider/ContactsContract
             // GET IMAGE FROM CONTACT
-            var bitmap = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI))
+            val bitmap = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI))
 
             // https://developer.android.com/reference/android/provider/ContactsContract
             // https://gist.github.com/srayhunter/47ab2816b01f0b00b79150150feb2eb2
@@ -185,7 +183,7 @@ class MainActivity : AppCompatActivity() {
             val date: Date = getDate(phone)
 
             // CREATE CONTACT WITH COLLECTED INFORMATION
-            var contact = Contacts(bitmap, phone, name, notificationGroup, date)
+            val contact = Contacts(bitmap, phone, name, notificationGroup, date)
 
             contactList.add(contact)
         }
@@ -204,7 +202,7 @@ class MainActivity : AppCompatActivity() {
         // REMOVE PHONE NUMBER FORMATTING FROM GIVEN NUMBER
         var callDate = ""
         val re = Regex("-| |\\(|\\)")
-        var newPhone = re.replace(phone, "")
+        val newPhone = re.replace(phone, "")
 
         // CHECKER TO MAKE SURE MOST RECENT LOG ISN'T REPLACED BY OLDER LOG
         var notFound = true
@@ -231,7 +229,7 @@ class MainActivity : AppCompatActivity() {
     // https://stackoverflow.com/questions/38892519/store-custom-arraylist-in-sharedpreferences-and-get-it-from-there
     private fun saveArray(contactList: ArrayList<Contacts>) {
         val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        var editor = prefs.edit()
+        val editor = prefs.edit()
         val gson = Gson()
         val jsonText = gson.toJson(contactList)
         editor.putString("key", jsonText)
@@ -241,6 +239,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         super.onCreateOptionsMenu(menu)
 
+        //Add menu options to main activity screen
         menu.add(Menu.NONE, 1, Menu.NONE, "Clear Notifications")
         menu.add(Menu.NONE, 2, Menu.NONE, "Edit Notification Groups")
         return true
@@ -255,20 +254,21 @@ class MainActivity : AppCompatActivity() {
             }
 
             2 -> {
-                var dialogBuilder = AlertDialog.Builder(this)
-                var ndialog = layoutInflater.inflate(
+                val dialogBuilder = AlertDialog.Builder(this)
+                val ndialog = layoutInflater.inflate(
                     R.layout.notificationgroupdialog,
                     null
                 )  //Custom Dialog for entering number of days per Notification group
 
-                var notif1 = ndialog.findViewById<EditText>(R.id.notification1)
-                var notif2 = ndialog.findViewById<EditText>(R.id.notification2)
-                var notif3 = ndialog.findViewById<EditText>(R.id.notification3)
+                val notif1 = ndialog.findViewById<EditText>(R.id.notification1)
+                val notif2 = ndialog.findViewById<EditText>(R.id.notification2)
+                val notif3 = ndialog.findViewById<EditText>(R.id.notification3)
 
                 notif1.hint = mPrefs.getInt("Notif1", 1).toString()
                 notif2.hint = mPrefs.getInt("Notif2", 5).toString()
                 notif3.hint = mPrefs.getInt("Notif3", 10).toString()
 
+                //Sets default notification intervals per group if no prior settings are found
                 if (notif1.text.isEmpty() || notif1.text.toString().toInt() == 0) {
                     notif1.setText(mPrefs.getInt("Notif1", 1).toString())
                 }
@@ -282,7 +282,8 @@ class MainActivity : AppCompatActivity() {
 
                 dialogBuilder.setView(ndialog)
 
-                val title = TextView(this) //Title bar styling for dialog
+                //Title bar styling for dialog inspired from https://stackoverflow.com/a/13359573
+                val title = TextView(this)
                 title.text = "Notification Group Settings"
                 title.setBackgroundColor(resources.getColor(R.color.colorPrimary))
                 title.setPadding(20, 20, 20, 20)
@@ -291,27 +292,29 @@ class MainActivity : AppCompatActivity() {
                 title.textSize = 20f
                 dialogBuilder.setCustomTitle(title)
 
-                var dialog = dialogBuilder.create() //Create and display the dialog to the user
+                val dialog = dialogBuilder.create() //Create and display the dialog to the user
                 dialog.show()
 
-                var saveButton = ndialog.findViewById<Button>(R.id.saveButton)
+                val saveButton = ndialog.findViewById<Button>(R.id.saveButton)
                 saveButton.setOnClickListener {
                     // Edit notification groups and backend monitoring
 
                     val prefs: SharedPreferences =
                         PreferenceManager.getDefaultSharedPreferences(this)
-                    var editor = prefs.edit()
+                    val editor = prefs.edit()
 
-                    var v1 = if (notif1.text.isEmpty() || notif1.text.toString().toInt() == 0) {
+                    //Validates notification intervals
+                    val v1 = if (notif1.text.isEmpty() || notif1.text.toString().toInt() == 0) {
                         mPrefs.getInt("Notif1", 1).toString()
                     } else notif1.text.toString()
-                    var v2 = if (notif2.text.isEmpty() || notif2.text.toString().toInt() == 0) {
+                    val v2 = if (notif2.text.isEmpty() || notif2.text.toString().toInt() == 0) {
                         mPrefs.getInt("Notif2", 5).toString()
                     } else notif2.text.toString()
-                    var v3 = if (notif3.text.isEmpty() || notif3.text.toString().toInt() == 0) {
+                    val v3 = if (notif3.text.isEmpty() || notif3.text.toString().toInt() == 0) {
                         mPrefs.getInt("Notif3", 10).toString()
                     } else notif3.text.toString()
 
+                    //Saves notification intervals to shared preferences
                     editor.putInt("Notif1", v1.toInt())
                     editor.putInt("Notif2", v2.toInt())
                     editor.putInt("Notif3", v3.toInt())
@@ -334,10 +337,6 @@ class MainActivity : AppCompatActivity() {
         return hours / 24
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-    }
-
     override fun onDestroy() {
         stopService(Intent(applicationContext, RunInBackground::class.java))
         val broadcastIntent = Intent().setAction("restartservice").setClass(this, Restarter::class.java)
@@ -349,7 +348,7 @@ class MainActivity : AppCompatActivity() {
     private fun isMyServiceRunning(serviceClass: Class<*>): Boolean {
         val manager: ActivityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         for (service in manager.getRunningServices(Int.MAX_VALUE)) {
-            if (serviceClass.name == service.service.getClassName()) {
+            if (serviceClass.name == service.service.className) {
                 return true
             }
         }

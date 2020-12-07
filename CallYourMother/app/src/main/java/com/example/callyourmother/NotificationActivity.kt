@@ -19,11 +19,11 @@ class NotificationActivity: ListActivity() {
         val json: String = prefs.getString("key", null) as String
         val type: Type = object : TypeToken<java.util.ArrayList<Contacts>?>() {}.type
         val contactList: ArrayList<Contacts> = gson.fromJson(json, type)
-        var group1 = prefs.getInt("Notif1", 1)//intent!!.getIntExtra("Group 1", 1)
-        var group2 = prefs.getInt("Notif2", 5)//intent!!.getIntExtra("Group 2", 5)
-        var group3 = prefs.getInt("Notif3", 10)//intent!!.getIntExtra("Group 3", 10)
+        val group1 = prefs.getInt("Notif1", 1)//intent!!.getIntExtra("Group 1", 1)
+        val group2 = prefs.getInt("Notif2", 5)//intent!!.getIntExtra("Group 2", 5)
+        val group3 = prefs.getInt("Notif3", 10)//intent!!.getIntExtra("Group 3", 10)
 
-        var mNotification : ArrayList<Contacts> = contactList.filter { contact: Contacts ->
+        val mNotification : ArrayList<Contacts> = contactList.filter { contact: Contacts ->
             when (contact.notification) {
                 "Group 1" -> (diffDates(contact.lastCallDate!!) > group1)
                 "Group 2" -> (diffDates(contact.lastCallDate!!) > group2)
@@ -40,7 +40,7 @@ class NotificationActivity: ListActivity() {
             mNotification.clear()
         }
 
-        var adapters = NotificationAdapter(applicationContext,   mNotification)
+        val adapters = NotificationAdapter(applicationContext,   mNotification)
         listAdapter = adapters
     }
 

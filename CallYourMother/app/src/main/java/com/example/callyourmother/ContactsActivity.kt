@@ -4,18 +4,18 @@ import android.app.ListActivity
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import java.lang.Exception
 import java.lang.reflect.Type
 
 
 class ContactsActivity: ListActivity() {
-    lateinit var mAdapter: ContactsAdapter
+    private lateinit var mAdapter: ContactsAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.contactslist)
+
+        //Obtain contacts from shared preferences and compiles into an array list to be displayed
         val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val gson = Gson()
         val json: String = prefs.getString("key", null) as String
@@ -24,12 +24,9 @@ class ContactsActivity: ListActivity() {
 
         mAdapter = ContactsAdapter(applicationContext,
             contactList
-        ) //input the contacts array that was past through from intent into second parameter
+        ) //input the contacts array to be displayed from shared preferences
 
         listAdapter = mAdapter
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-    }
 }

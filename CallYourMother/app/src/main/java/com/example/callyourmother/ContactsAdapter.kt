@@ -83,9 +83,11 @@ class ContactsAdapter(Context: Context, Array: ArrayList<Contacts>) : BaseAdapte
         notification.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                 val selected = parent.adapter.getItem(position) as String
+                if (contacts.notification != selected) {
+                    PreferenceManager.getDefaultSharedPreferences(context).edit().putBoolean("cleared", false).commit()
+                }
                 contacts.notification = selected
-                saveArray(array)
-                PreferenceManager.getDefaultSharedPreferences(context).edit().putBoolean("cleared", false).commit()
+                saveArray(array)           
                 notifyDataSetChanged()
             }
 
